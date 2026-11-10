@@ -1,4 +1,5 @@
 import logging
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -13,14 +14,15 @@ load_dotenv()
 
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="Recordatorios de Renovación - Gimnasio")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    db.init_db()
+    yield
+
+
+app = FastAPI(title="Recordatorios de Renovación - Gimnasio", lifespan=lifespan)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
-
-
-@app.on_event("startup")
-def startup():
-    db.init_db()
 
 
 @app.exception_handler(RequestValidationError)

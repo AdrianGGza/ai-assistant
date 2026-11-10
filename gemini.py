@@ -11,7 +11,7 @@ from models import SocioEntrada, MensajeSalida, ResultadoSocio
 logger = logging.getLogger(__name__)
 
 API_KEY = os.getenv("GEMINI_API_KEY")
-MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+MODEL = os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite")
 
 TONOS = ["amable", "directo", "motivacional"]
 

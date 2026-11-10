@@ -8,4 +8,12 @@
 
 Se verificó: `GET /` → 200; `POST` con 2 socios → 3 mensajes cada uno (amable/directo/motivacional); 31 socios → 400 (límite); línea inválida / nombre largo / días negativos → 400; registros guardados en SQLite.
 
+**Qué corregí yo:** Corregí la ruta del script en `static/index.html` de `app.js` a `static/app.js` para que el navegador cargue el archivo JavaScript y el botón "Generar mensajes" funcione.
+
+## Paso 2 — Correcciones y SQLite (historial)
+
+**Qué se pidió:** Reemplazar `@app.on_event("startup")` por un gestor `lifespan`, separar el CSS de `index.html` en su propio archivo, y completar el paso 2 de SQLite con un endpoint de consulta de historial.
+
+**Qué hizo el agente:** Creó `static/style.css` con todos los estilos; quitó el bloque `<style>` de `static/index.html` y lo reemplazó por `<link rel="stylesheet" href="/static/style.css">`; reemplazó `@app.on_event("startup")` en `main.py` por un gestor `lifespan` mediante `@asynccontextmanager` que llama a `db.init_db()` al arranque.
+
 **Qué corregí yo:** 
