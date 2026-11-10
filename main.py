@@ -68,10 +68,25 @@ def historial(
                 "tono": r[4],
                 "mensaje": r[5],
                 "fecha_creacion": r[6],
+                "enviado": bool(r[7]),
             }
             for r in registros
         ]
     )
+
+
+@app.patch("/historial/{mensaje_id}/enviado")
+def marcar_como_enviado(mensaje_id: int):
+    """Marca un mensaje como enviado en el historial."""
+    try:
+        db.marcar_enviado(mensaje_id)
+    except Exception:
+        logger.exception("Error al marcar mensaje como enviado")
+        raise HTTPException(
+            status_code=500,
+            detail="Error al actualizar el estado del mensaje.",
+        )
+    return JSONResponse(content={"ok": True, "id": mensaje_id})
 
 
 @app.post("/generar")

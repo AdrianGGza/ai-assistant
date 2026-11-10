@@ -1,6 +1,6 @@
 body {
   font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-  max-width: 720px;
+  max-width: 1200px;
   margin: 2rem auto;
   padding: 0 1rem;
   color: #222;
@@ -36,7 +36,7 @@ button:disabled {
   cursor: not-allowed;
 }
 
-/* Controles de generación y filtro */
+/* Controles de generación y orden */
 .controles {
   display: flex;
   flex-wrap: wrap;
@@ -53,49 +53,105 @@ button:disabled {
   box-sizing: border-box;
 }
 
-/* Grid de resultados: dos columnas */
+/* Grid de resultados: 3 columnas en desktop */
 .resultados-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
   margin-top: 1rem;
 }
 .resultado {
   border: 1px solid #ddd;
-  padding: 1rem;
-  border-radius: 8px;
+  padding: 1.25rem;
+  border-radius: 10px;
   background: #fafafa;
   display: flex;
   flex-direction: column;
+  gap: 0.75rem;
 }
 .socio-label {
   font-weight: bold;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
   font-size: 0.95rem;
+  color: #333;
 }
 .mensaje {
-  margin-bottom: 0.75rem;
-  padding: 0.75rem;
+  margin-bottom: 0;
+  padding: 0.85rem;
   background: #fff;
   border: 1px solid #eee;
-  border-radius: 6px;
+  border-radius: 8px;
   white-space: pre-wrap;
   font-size: 0.95rem;
-  line-height: 1.4;
+  line-height: 1.5;
+  position: relative;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.mensaje.enviado {
+  border: 2px solid #2ecc71;
+  background: #f0fff7;
 }
 .tono {
   font-weight: bold;
   text-transform: uppercase;
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   color: #666;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.1rem;
   letter-spacing: 0.5px;
+}
+.texto-mensaje {
+  flex: 1;
+  margin-bottom: 0.5rem;
+}
+.botones-mensaje {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: auto;
 }
 .copiar {
   font-size: 0.82rem;
-  padding: 0.25rem 0.6rem;
-  margin-top: 0.35rem;
-  float: right;
+  padding: 0.35rem 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fff;
+  color: #333;
+  cursor: pointer;
+  flex: 1;
+}
+.copiar:hover {
+  background: #f5f5f5;
+}
+.btn-enviar {
+  font-size: 0.82rem;
+  padding: 0.35rem 0.9rem;
+  border: 1px solid #2ecc71;
+  border-radius: 6px;
+  background: #fff;
+  color: #2ecc71;
+  cursor: pointer;
+  flex: 1;
+}
+.btn-enviar:hover:not(:disabled) {
+  background: #2ecc71;
+  color: #fff;
+}
+.btn-enviar:disabled,
+.btn-enviar.enviado {
+  background: #2ecc71;
+  color: #fff;
+  border-color: #27ae60;
+  cursor: not-allowed;
+}
+.estado-enviado {
+  font-size: 0.78rem;
+  color: #2ecc71;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: auto;
 }
 .error {
   color: #b00020;
@@ -107,10 +163,11 @@ button:disabled {
   margin-bottom: 1rem;
 }
 
-/* Responsive: una columna en pantallas pequeñas */
-@media (max-width: 600px) {
+/* Responsive: 2 columnas en tablets */
+@media (min-width: 600px) and (max-width: 899px) {
   .resultados-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
   }
   .controles {
     flex-direction: column;
@@ -119,5 +176,27 @@ button:disabled {
   .controles input[type="text"],
   .controles select {
     width: 100%;
+  }
+  .mensaje {
+    min-height: 100px;
+  }
+}
+
+/* Responsive: 1 columna en móviles */
+@media (max-width: 599px) {
+  .resultados-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .controles {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .controles input[type="text"],
+  .controles select {
+    width: 100%;
+  }
+  .mensaje {
+    min-height: 100px;
   }
 }

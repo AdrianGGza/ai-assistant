@@ -1,7 +1,6 @@
 const entrada = document.getElementById('entrada');
 const btnGenerar = document.getElementById('btnGenerar');
 const btnFiltrar = document.getElementById('btnFiltrar');
-const filtroNombre = document.getElementById('filtroNombre');
 const filtroOrden = document.getElementById('filtroOrden');
 const errorDiv = document.getElementById('error');
 const resultadosDiv = document.getElementById('resultados');
@@ -61,42 +60,33 @@ btnFiltrar.addEventListener('click', async () => {
   errorDiv.textContent = '';
   resultadosDiv.innerHTML = '';
   btnFiltrar.disabled = true;
-  btnFiltrar.textContent = 'Filtrando...';
+  btnFiltrar.textContent = 'Aplicando...';
 
-  const params = new URLSearchParams();
-  if (filtroNombre.value.trim()) {
-    params.append('nombre', filtroNombre.value.trim());
-  }
-  params.append('orden', filtroOrden.value);
-  params.append('limite', '50');
-
-  try {
-    const res = await fetch('/historial?' + params.toString(), {
-      method: 'GET',
+  try{
+    const params = new URLSearchParams({
+      orden: filtroOrden.value,
+      limite: '50',
     });
 
-    if (res.status === 400) {
-      errorDiv.textContent = 'No se pudo aplicar el filtro. Revisa los parámetros.';
-      btnFiltrar.disabled = false;
-      btnFiltrar.textContent = 'Aplicar filtro';
+    const res = await fetch('/historial?' + params.toString());
+
+    if (res.status === 400){
+      errorDiv.textContent = 'No se pudo aplicar el orden. Revisa los parametros'
       return;
     }
-
-    if (!res.ok) {
-      errorDiv.textContent = 'Error del servidor al consultar el historial.';
-      btnFiltrar.disabled = false;
-      btnFiltrar.textContent = 'Aplicar filtro';
+    if(!res.ok){
+      errorDiv.textContent = 'Error del servidor al consultar el historial'
       return;
     }
 
     const filas = await res.json();
-    const agrupado = agruparHistorialPorSocio(filas);
-    renderizar(agrupado);
-  } catch (err) {
-    errorDiv.textContent = 'Error al conectar con el servidor.';
-  } finally {
+    renderizar(agruparHistorialPorSocio(filas));
+  } catch(err){
+    console.error('Error real en orden: ',err);
+    errorDiv.textContent = 'Error al consultar el historial';
+  }finally {
     btnFiltrar.disabled = false;
-    btnFiltrar.textContent = 'Aplicar filtro';
+    btnFiltrar.textContent = 'Aplicar orden'
   }
 });
 
@@ -119,8 +109,10 @@ function agruparHistorialPorSocio(filas) {
     }
     const socio = porSocio.get(key);
     socio.mensajes.push({
+      id: fila.id,
       tono: fila.tono,
       mensaje: fila.mensaje,
+      enviado: fila.enviado,
     });
   }
 
@@ -153,20 +145,63 @@ function renderizar(resultados) {
       // Se inserta como nodo de texto (textContent), nunca como HTML: evita XSS.
       texto.textContent = m.mensaje;
 
-      const btn = document.createElement('button');
-      btn.className = 'copiar';
-      btn.textContent = 'Copiar';
-      btn.addEventListener('click', () => {
+      // Contenedor de botones para separarlos del texto
+      const contenedorBotones = document.createElement('div');
+      contenedorBotones.className = 'botones-mensaje';
+
+      // Botón copiar
+      const btnCopiar = document.createElement('button');
+      btnCopiar.className = 'copiar';
+      btnCopiar.textContent = 'Copiar';
+      btnCopiar.addEventListener('click', () => {
         navigator.clipboard.writeText(m.mensaje).then(() => {
-          const prev = btn.textContent;
-          btn.textContent = '¡Copiado!';
-          setTimeout(() => { btn.textContent = prev; }, 1500);
+          const prev = btnCopiar.textContent;
+          btnCopiar.textContent = '¡Copiado!';
+          setTimeout(() => { btnCopiar.textContent = prev; }, 1500);
         });
       });
 
+      // Botón enviar
+      const btnEnviar = document.createElement('button');
+      btnEnviar.className = 'btn-enviar';
+      btnEnviar.textContent = m.enviado ? 'Mensaje enviado' : 'Enviar';
+      btnEnviar.disabled = m.enviado;
+      btnEnviar.addEventListener('click', async () => {
+        try {
+          const res = await fetch(`/historial/${m.id}/enviado`, {
+            method: 'PATCH',
+          });
+          if (res.ok) {
+            contenedor.classList.add('enviado');
+            btnEnviar.textContent = 'Mensaje enviado';
+            btnEnviar.disabled = true;
+
+            const estado = document.createElement('div');
+            estado.className = 'estado-enviado';
+            estado.textContent = 'Mensaje enviado';
+            contenedor.appendChild(estado);
+          }
+        } catch (err) {
+          errorDiv.textContent = 'Error al marcar como enviado.';
+        }
+      });
+
+      contenedorBotones.appendChild(btnCopiar);
+      contenedorBotones.appendChild(btnEnviar);
+
       contenedor.appendChild(tono);
       contenedor.appendChild(texto);
-      contenedor.appendChild(btn);
+      contenedor.appendChild(contenedorBotones);
+
+      // Mostrar estado si ya fue enviado (después de los botones)
+      if (m.enviado) {
+        contenedor.classList.add('enviado');
+        const estado = document.createElement('div');
+        estado.className = 'estado-enviado';
+        estado.textContent = 'Mensaje enviado';
+        contenedor.appendChild(estado);
+      }
+
       bloque.appendChild(contenedor);
     }
     resultadosDiv.appendChild(bloque);

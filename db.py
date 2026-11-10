@@ -21,9 +21,33 @@ def init_db():
                 plan TEXT,
                 tono TEXT,
                 mensaje TEXT,
-                fecha_creacion TEXT DEFAULT CURRENT_TIMESTAMP
+                fecha_creacion TEXT DEFAULT CURRENT_TIMESTAMP,
+                enviado INTEGER DEFAULT 0
             )
             """
+        )
+        # Agregar columna 'enviado' a tablas existentes que no la tengan.
+        try:
+            conn.execute("ALTER TABLE mensajes_generados ADD COLUMN enviado INTEGER DEFAULT 0")
+        except sqlite3.OperationalError:
+            # La columna ya existe, no hay que hacer nada.
+            pass
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def marcar_enviado(mensaje_id: int):
+    """Marca un mensaje como enviado (enviado = 1) por su id."""
+    conn = get_conn()
+    try:
+        conn.execute(
+            """
+            UPDATE mensajes_generados
+            SET enviado = 1
+            WHERE id = ?
+            """,
+            (mensaje_id,),
         )
         conn.commit()
     finally:
@@ -58,7 +82,7 @@ def obtener_historial(nombre: str | None, limite: int = 50, orden: str = "desc")
     try:
         cur = conn.execute(
             f"""
-            SELECT id, nombre, dias_vencidos, plan, tono, mensaje, fecha_creacion
+            SELECT id, nombre, dias_vencidos, plan, tono, mensaje, fecha_creacion, enviado
             FROM (
                 SELECT *,
                        ROW_NUMBER() OVER (

@@ -42,3 +42,37 @@ Se verificó: `GET /` → 200; `POST` con 2 socios → 3 mensajes cada uno (amab
 
 **Qué corregí yo:** 
 
+## Paso 4 — Botón "Enviar" por mensaje con estado verde
+
+**Qué se pidió:** Cada mensaje debe tener un botón "Enviar" que, al presionarlo, marque el mensaje como enviado en la BD, cambie el borde a verde, muestre "Mensaje enviado" y mantenga el mensaje en pantalla (no eliminarlo). Quitar el filtro por nombre del historial.
+
+**Qué hizo el agente:**
+- `db.py`: Agregó columna `enviado INTEGER DEFAULT 0` a la tabla (con ALTER TABLE para tablas existentes), función `marcar_enviado(id)`, e incluyó `enviado` en el SELECT de `obtener_historial`.
+- `main.py`: Agregó endpoint `PATCH /historial/{mensaje_id}/enviado` y incluyó `"enviado": bool(r[7])` en el JSON de respuesta de `/historial`.
+- `static/style.css`: Agregó clases `.mensaje.enviado` (borde verde #2ecc71), `.estado-enviado` (texto verde centrado inferior) y `.btn-enviar` (botón en parte inferior central).
+- `static/index.html`: Quitó el input "Filtrar por nombre"; mantuvo solo el select de orden y el botón "Aplicar orden".
+- `static/app.js`: Agregó `id` y `enviado` a cada mensaje en `agruparHistorialPorSocio`; en `renderizar`, agregó botón "Enviar" por mensaje en posición inferior central; al hacer clic envía `PATCH /historial/{id}/enviado`, cambia el botón a "Mensaje enviado", deshabilita el botón, agrega texto "Mensaje enviado" y aplica clase `.enviado` al contenedor.
+
+**Qué corregí yo:** 
+
+## Paso 5 — Mejoras de diseño responsivo y visualización de mensajes enviados
+
+**Qué se pidió:** (1) Mostrar todos los mensajes independientemente del orden y del estado enviado, indicando cuáles ya fueron enviados. (2) Mejorar la responsividad y el espaciamiento de botones para que no se empalmen con los textos. (3) Crear una interfaz más amigable.
+
+**Qué hizo el agente:**
+- `db.py`: Confirmó que `obtener_historial` no filtra por `enviado`, devuelve todos los registros con el campo `enviado` incluido.
+- `static/style.css`: Rediseñó completamente el CSS con mejor espaciado, contenedor `.botones-mensaje` para separar botones de textos, clase `.texto-mensaje` para el cuerpo del mensaje, mejoras de tipografía, bordes más suaves, y media queries para pantallas pequeñas (≤600px) y medianas (601-900px).
+- `static/app.js`: Reestructuró `renderizar` para envolver botones "Copiar" y "Enviar" en `.botones-mensaje`, usar `.texto-mensaje` para el cuerpo, y mostrar el estado "Mensaje enviado" después de los botones (no antes). Todos los mensajes se muestran siempre, con indicador visual verde para los enviados.
+
+**Qué corregí yo:** 
+
+## Paso 6 — Grid responsivo 3/2/1 columnas y consistencia de mensajes
+
+**Qué se pidió:** (1) Mostrar exactamente los mismos mensajes con su estado (enviado/no enviado) independientemente del orden ascendente o descendente. (2) Grid responsivo: 3 columnas en laptop/PC (≥900px), 2 columnas en tablets (600-899px), 1 columna en móviles (<600px). (3) Usar estándares de dimensiones de pantalla.
+
+**Qué hizo el agente:**
+- `static/style.css`: Cambió `max-width` de 900px a 1200px; cambió el grid por defecto a 3 columnas (`repeat(3, 1fr)`); reemplazó las media queries por: móvil (<600px) = 1 columna, tablet (600-899px) = 2 columnas, desktop (≥900px) = 3 columnas; ajustó gaps y min-height según el breakpoint.
+- `static/app.js`: Verificó que `agruparHistorialPorSocio` y `renderizar` no filtran por `enviado`; todos los mensajes se muestran siempre con su estado respectivo, independientemente del orden de consulta.
+- `db.py`: Confirmó que `obtener_historial` no filtra por `enviado`, devuelve todos los registros.
+
+**Qué corregí yo:** 
