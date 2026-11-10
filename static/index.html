@@ -13,9 +13,17 @@
 <textarea id="entrada" placeholder="María López|14|Mensualidad
 Juan Pérez|5|Anual"></textarea>
 <br>
-<button id="btnGenerar">Generar mensajes</button>
+<div class="controles">
+  <button id="btnGenerar">Generar mensajes</button>
+  <input type="text" id="filtroNombre" placeholder="Filtrar por nombre del socio">
+  <select id="filtroOrden">
+    <option value="desc">Ordenar: días vencidos (mayor a menor)</option>
+    <option value="asc">Ordenar: días vencidos (menor a mayor)</option>
+  </select>
+  <button id="btnFiltrar">Aplicar filtro</button>
+</div>
 <div id="error" class="error"></div>
-<div id="resultados"></div>
-<script src="static/app.js"></script>
+<div id="resultados" class="resultados-grid"></div>
+<script src="/static/app.js"></script>
 </body>
 </html>

@@ -1,5 +1,8 @@
 const entrada = document.getElementById('entrada');
 const btnGenerar = document.getElementById('btnGenerar');
+const btnFiltrar = document.getElementById('btnFiltrar');
+const filtroNombre = document.getElementById('filtroNombre');
+const filtroOrden = document.getElementById('filtroOrden');
 const errorDiv = document.getElementById('error');
 const resultadosDiv = document.getElementById('resultados');
 const modoDiv = document.getElementById('modo');
@@ -53,6 +56,76 @@ btnGenerar.addEventListener('click', async () => {
     btnGenerar.textContent = 'Generar mensajes';
   }
 });
+
+btnFiltrar.addEventListener('click', async () => {
+  errorDiv.textContent = '';
+  resultadosDiv.innerHTML = '';
+  btnFiltrar.disabled = true;
+  btnFiltrar.textContent = 'Filtrando...';
+
+  const params = new URLSearchParams();
+  if (filtroNombre.value.trim()) {
+    params.append('nombre', filtroNombre.value.trim());
+  }
+  params.append('orden', filtroOrden.value);
+  params.append('limite', '50');
+
+  try {
+    const res = await fetch('/historial?' + params.toString(), {
+      method: 'GET',
+    });
+
+    if (res.status === 400) {
+      errorDiv.textContent = 'No se pudo aplicar el filtro. Revisa los parámetros.';
+      btnFiltrar.disabled = false;
+      btnFiltrar.textContent = 'Aplicar filtro';
+      return;
+    }
+
+    if (!res.ok) {
+      errorDiv.textContent = 'Error del servidor al consultar el historial.';
+      btnFiltrar.disabled = false;
+      btnFiltrar.textContent = 'Aplicar filtro';
+      return;
+    }
+
+    const filas = await res.json();
+    const agrupado = agruparHistorialPorSocio(filas);
+    renderizar(agrupado);
+  } catch (err) {
+    errorDiv.textContent = 'Error al conectar con el servidor.';
+  } finally {
+    btnFiltrar.disabled = false;
+    btnFiltrar.textContent = 'Aplicar filtro';
+  }
+});
+
+function agruparHistorialPorSocio(filas) {
+  // Agrupa filas planas del historial por socio, tomando el mensaje más reciente de cada tono.
+  const porSocio = new Map();
+
+  for (const fila of filas) {
+    const key = fila.nombre;
+    if (!porSocio.has(key)) {
+      porSocio.set(key, {
+        nombre: fila.nombre,
+        dias_vencidos: fila.dias_vencidos,
+        plan: fila.plan,
+        mensajes: [],
+      });
+    }
+    const socio = porSocio.get(key);
+    // Evita duplicar tono: solo agrega si aún no existe ese tono para este socio
+    if (!socio.mensajes.find(m => m.tono === fila.tono)) {
+      socio.mensajes.push({
+        tono: fila.tono,
+        mensaje: fila.mensaje,
+      });
+    }
+  }
+
+  return Array.from(porSocio.values());
+}
 
 function renderizar(resultados) {
   if (!resultados || resultados.length === 0) {
