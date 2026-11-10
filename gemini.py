@@ -10,7 +10,6 @@ from models import SocioEntrada, MensajeSalida, ResultadoSocio
 
 logger = logging.getLogger(__name__)
 
-API_KEY = os.getenv("GEMINI_API_KEY")
 MODEL = os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite")
 
 TONOS = ["amable", "directo", "motivacional"]
@@ -75,7 +74,7 @@ def _llamar_gemini(prompt: str) -> dict:
     ultimo_error = None
     for intento in range(2):
         try:
-            client = genai.Client(api_key=API_KEY)
+            client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
             respuesta = client.models.generate_content(
                 model=MODEL,
                 contents=prompt,
@@ -133,7 +132,7 @@ def generar_para_socios(lineas: List[str]) -> List[ResultadoSocio]:
 
     resultados: List[ResultadoSocio] = []
     for socio in socios:
-        if API_KEY:
+        if os.getenv("GEMINI_API_KEY"):
             mensajes = _generar_con_gemini(socio)
         else:
             mensajes = [

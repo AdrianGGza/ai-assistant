@@ -4,13 +4,11 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.exceptions import RequestValidationError
 from dotenv import load_dotenv
+load_dotenv()
 
 import db
 import gemini
 from models import PeticionGenerar, RespuestaGenerar
-
-load_dotenv()
-
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Recordatorios de Renovación - Gimnasio")
