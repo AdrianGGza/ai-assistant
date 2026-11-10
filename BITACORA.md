@@ -76,3 +76,15 @@ Se verificó: `GET /` → 200; `POST` con 2 socios → 3 mensajes cada uno (amab
 - `db.py`: Confirmó que `obtener_historial` no filtra por `enviado`, devuelve todos los registros.
 
 **Qué corregí yo:** 
+
+## Paso 7 — Pruebas mínimas con pytest
+
+**Qué se pidió:** Desarrollar 2-3 pruebas mínimas automatizadas con pytest que cubran las funcionalidades críticas de la app sin depender de una clave real de Gemini.
+
+**Qué hizo el agente:** Creó `test_app.py` con 3 pruebas usando `TestClient` de FastAPI:
+1. `test_modo_simulado_sin_api_key`: verifica que con `GEMINI_API_KEY` desactivada (usando `monkeypatch`), `POST /generar` devuelve 200 con 3 mensajes por socio (tonos amable/directo/motivacional), cada uno ≤ 280 caracteres.
+2. `test_validacion_entrada`: verifica que la app rechace peticiones con más de 30 socios (400), línea inválida (400), días negativos (400) y nombre muy largo >60 (400).
+3. `test_historial_sqlite`: verifica que `POST /generar` guarda en SQLite, `GET /historial` devuelve todos los registros con los campos esperados, el filtro por nombre es insensible a mayúsculas/minúsculas, y el ordenamiento asc/desc funciona correctamente. Usa una BD temporal que se borra al terminar.
+
+**Qué corregí yo:** 
+
