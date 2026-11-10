@@ -101,13 +101,16 @@ btnFiltrar.addEventListener('click', async () => {
 });
 
 function agruparHistorialPorSocio(filas) {
-  // Agrupa filas planas del historial por socio, tomando el mensaje más reciente de cada tono.
+  // Agrupa filas planas del historial por socio.
+  // La DB ya devuelve solo el mensaje más reciente por socio+tono (ROW_NUMBER rn=1),
+  // por lo que no hay que recalcular fechas ni verificar duplicados aquí.
   const porSocio = new Map();
 
   for (const fila of filas) {
-    const key = fila.nombre;
+    const key = `${fila.nombre.toLowerCase()}|${fila.plan}|${fila.dias_vencidos}`;
     if (!porSocio.has(key)) {
       porSocio.set(key, {
+        id: fila.id,
         nombre: fila.nombre,
         dias_vencidos: fila.dias_vencidos,
         plan: fila.plan,
@@ -115,13 +118,10 @@ function agruparHistorialPorSocio(filas) {
       });
     }
     const socio = porSocio.get(key);
-    // Evita duplicar tono: solo agrega si aún no existe ese tono para este socio
-    if (!socio.mensajes.find(m => m.tono === fila.tono)) {
-      socio.mensajes.push({
-        tono: fila.tono,
-        mensaje: fila.mensaje,
-      });
-    }
+    socio.mensajes.push({
+      tono: fila.tono,
+      mensaje: fila.mensaje,
+    });
   }
 
   return Array.from(porSocio.values());

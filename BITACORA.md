@@ -26,6 +26,14 @@ Se verificó: `GET /` → 200; `POST` con 2 socios → 3 mensajes cada uno (amab
 
 **Qué corregí yo:** 
 
+## Paso 3b — Corrección de agrupación del historial (ROW_NUMBER + clave de socio)
+
+**Qué se pidió:** Corregir `agruparHistorialPorSocio` para que use el mensaje más reciente por tono (sin recalcular en JS), que socios con mismo nombre pero distinto plan queden en tarjetas separadas, y que el campo `id` venga de la base de datos.
+
+**Qué hizo el agente:** Modificó `db.obtener_historial` para incluir `id` en el SELECT y usar `ROW_NUMBER() OVER (PARTITION BY LOWER(nombre), plan, tono ORDER BY fecha_creacion DESC, id DESC) AS rn` con `WHERE rn = 1`, ordenando por `dias_vencidos {direccion}, LOWER(nombre), plan, tono`. Modificó `main.py` para incluir `id` en el JSON de respuesta de `/historial`. Simplificó `agruparHistorialPorSocio` en `static/app.js` para usar como clave `${fila.nombre.toLowerCase()}|${fila.plan}|${fila.dias_vencidos}` sin verificar duplicados ni recalcular fechas.
+
+**Qué corregí yo:** Prueba mínima: (a) SQL con dos generaciones del mismo tono devuelve solo la más reciente. (b) Dos socios con mismo nombre y planes distintos quedan en tarjetas separadas. Ambas verificadas con BD temporal (no la del proyecto) y borrada al terminar.
+
 ## Paso 3 — Ajustes de diseño (doble columna + filtros)
 
 **Qué se pidió:** Acomodar las tarjetas de mensajes por usuario en dos columnas (layout horizontal) y agregar funciones de filtro junto al botón "Generar mensajes".

@@ -61,12 +61,13 @@ def historial(
     return JSONResponse(
         content=[
             {
-                "nombre": r[0],
-                "dias_vencidos": r[1],
-                "plan": r[2],
-                "tono": r[3],
-                "mensaje": r[4],
-                "fecha_creacion": r[5],
+                "id": r[0],
+                "nombre": r[1],
+                "dias_vencidos": r[2],
+                "plan": r[3],
+                "tono": r[4],
+                "mensaje": r[5],
+                "fecha_creacion": r[6],
             }
             for r in registros
         ]

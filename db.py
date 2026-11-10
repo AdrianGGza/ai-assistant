@@ -47,37 +47,33 @@ def guardar(nombre: str, dias_vencidos: int, plan: str, tono: str, mensaje: str)
 
 
 def obtener_historial(nombre: str | None, limite: int = 50, orden: str = "desc"):
-    """Devuelve los mensajes guardados, con filtro opcional por nombre
-    (insensible a mayúsculas/minúsculas) y ordenamiento por días vencidos
-    (asc o desc). No incluye datos de contacto (no hay teléfonos)."""
     if orden not in ("asc", "desc"):
         raise ValueError("Orden inválido: use 'asc' o 'desc'")
 
     direccion = "ASC" if orden == "asc" else "DESC"
+    filtro = "WHERE LOWER(nombre) = LOWER(?)" if nombre else ""
+    params = [nombre] if nombre else []
 
     conn = get_conn()
     try:
-        if nombre:
-            cur = conn.execute(
-                f"""
-                SELECT nombre, dias_vencidos, plan, tono, mensaje, fecha_creacion
+        cur = conn.execute(
+            f"""
+            SELECT id, nombre, dias_vencidos, plan, tono, mensaje, fecha_creacion
+            FROM (
+                SELECT *,
+                       ROW_NUMBER() OVER (
+                           PARTITION BY LOWER(nombre), plan, tono
+                           ORDER BY fecha_creacion DESC, id DESC
+                       ) AS rn
                 FROM mensajes_generados
-                WHERE LOWER(nombre) = LOWER(?)
-                ORDER BY dias_vencidos {direccion}
-                LIMIT ?
-                """,
-                (nombre, limite),
+                {filtro}
             )
-        else:
-            cur = conn.execute(
-                f"""
-                SELECT nombre, dias_vencidos, plan, tono, mensaje, fecha_creacion
-                FROM mensajes_generados
-                ORDER BY dias_vencidos {direccion}
-                LIMIT ?
-                """,
-                (limite,),
-            )
+            WHERE rn = 1
+            ORDER BY dias_vencidos {direccion}, LOWER(nombre), plan, tono
+            LIMIT ?
+            """,
+            (*params, limite),
+        )
         return cur.fetchall()
     finally:
         conn.close()
