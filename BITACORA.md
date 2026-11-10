@@ -88,3 +88,15 @@ Se verificó: `GET /` → 200; `POST` con 2 socios → 3 mensajes cada uno (amab
 
 **Qué corregí yo:** 
 
+## Paso 8 — Preparación para producción
+
+**Qué se pidió:** Preparar el proyecto para despliegue en producción: ajustar `.gitignore`, agregar headers de seguridad, crear `.env.production.example`, documentar el despliegue en `README.md`.
+
+**Qué hizo el agente:**
+- `.gitignore`: Agregó `.env.production*`, `.pytest_cache/`, `.coverage`, `htmlcov/` a los archivos ignorados.
+- `.env.production.example`: Creó archivo con variables de ejemplo para producción (`GEMINI_API_KEY`, `GEMINI_MODEL`, `ENVIRONMENT=production`).
+- `main.py`: Agregó middleware `seguridad_headers` que añade a todas las respuestas los headers `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `X-XSS-Protection: 1; mode=block` y `Referrer-Policy: strict-origin-when-cross-origin`.
+- `README.md`: Agregó sección "Despliegue en producción" con pasos para configurar variables de entorno, instalar dependencias, ejecutar con uvicorn (sin `--reload`), variables requeridas, consideraciones de seguridad y notas sobre la base de datos SQLite.
+
+**Qué corregí yo:** 
+

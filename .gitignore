@@ -1,7 +1,11 @@
 .env
+.env.production*
 __pycache__/
 *.pyc
 .venv/
 venv/
 *.db
 sqlite.db
+.pytest_cache/
+.coverage
+htmlcov/

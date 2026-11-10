@@ -16,6 +16,17 @@ app = FastAPI(title="Recordatorios de Renovación - Gimnasio")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
+@app.middleware("http")
+async def seguridad_headers(request: Request, call_next):
+    """Agrega headers de seguridad a todas las respuestas."""
+    respuesta = await call_next(request)
+    respuesta.headers["X-Content-Type-Options"] = "nosniff"
+    respuesta.headers["X-Frame-Options"] = "DENY"
+    respuesta.headers["X-XSS-Protection"] = "1; mode=block"
+    respuesta.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    return respuesta
+
+
 @app.on_event("startup")
 def startup():
     db.init_db()

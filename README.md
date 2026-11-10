@@ -144,6 +144,61 @@ python -m pytest test_app.py -v
 
 ---
 
+## Despliegue en producción
+
+Para correr la aplicación en un entorno de producción, sigue estos pasos:
+
+### 1. Configurar variables de entorno
+
+Copia el archivo de ejemplo y coloca tus valores reales:
+
+```bash
+cp .env.production.example .env.production
+```
+
+Edita `.env.production` con tu `GEMINI_API_KEY` real y el modelo deseado. Asegúrate de que `ENVIRONMENT=production`.
+
+### 2. Instalar dependencias
+
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Ejecutar la aplicación
+
+Usa `uvicorn` sin el modo de recarga automática (`--reload`), que solo es para desarrollo:
+
+```bash
+python -m uvicorn main:app --host 0.0.0.0 --port 8000
+```
+
+Para mayor rendimiento en producción, se recomienda usar múltiples workers:
+
+```bash
+python -m uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
+```
+
+### 4. Variables de entorno requeridas en producción
+
+| Variable | Descripción | Obligatoria |
+|----------|-------------|-------------|
+| `GEMINI_API_KEY` | Clave de API de Google Gemini | Sí |
+| `GEMINI_MODEL` | Modelo de Gemini a usar (ej. `gemini-2.5-flash`) | Sí |
+| `ENVIRONMENT` | Entorno de ejecución (`production`, `development`) | Recomendado |
+
+### 5. Consideraciones de seguridad
+
+- Nunca subas el archivo `.env` ni `.env.production` al repositorio. Ambos están en `.gitignore`.
+- La base de datos SQLite (`recordatorios.db`) también está en `.gitignore` y no debe subirse.
+- Los headers de seguridad (`X-Content-Type-Options`, `X-Frame-Options`, `X-XSS-Protection`, `Referrer-Policy`) se agregan automáticamente en cada respuesta.
+- Los errores no revelan detalles internos ni stack traces al cliente.
+
+### 6. Base de datos
+
+La aplicación usa SQLite con un archivo local (`recordatorios.db`). Es adecuada para el volumen esperado (~10 socios por semana). No requiere configuración adicional; la tabla se crea automáticamente al iniciar la aplicación.
+
+---
+
 ## Estructura del repositorio
 
 ```
