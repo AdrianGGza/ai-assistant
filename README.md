@@ -12,7 +12,6 @@ Se eligió este problema porque:
 - Es un proceso manual repetitivo que consume tiempo valioso del encargado.
 - La personalización es sencilla (nombre, días vencidos, plan), lo que lo hace ideal para automatizar con IA.
 - No requiere integración con sistemas externos complejos (no envía WhatsApp, no calcula vencimientos, no guarda teléfonos), por lo que el alcance es manejable para un ejercicio técnico.
-- Ayuda a una PyME a reducir la carga operativa y a mantener una comunicación cordial y constante con sus socios.
 
 ---
 
@@ -77,7 +76,6 @@ El agente creó la estructura completa de la aplicación:
 A lo largo del desarrollo, realizaste las siguientes correcciones y ajustes:
 
 1. **Ruta del script:** Corregiste la ruta de `app.js` en `index.html` para que cargue desde `/static/app.js` y el botón "Generar mensajes" funcione.
-2. **Gestor lifespan:** Reemplazaste `@app.on_event("startup")` por un gestor `lifespan` para inicializar SQLite al arranque.
 3. **CSS separado:** Separaste los estilos de `index.html` en `static/style.css`.
 4. **Filtro por socio en historial:** Solicitaste que el historial permitiera filtrar por nombre de socio, insensible a mayúsculas/minúsculas, y ordenar por días vencidos (asc/desc).
 5. **Silenciar health checks:** Agregaste endpoints `GET /health` y `GET /v1/models` que devuelven 200 para evitar 404 en la consola del servidor.
